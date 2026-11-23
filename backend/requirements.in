@@ -1,0 +1,23 @@
+# Top-level runtime dependencies (human-edited).
+# requirements.txt is the fully pinned, resolved lock produced from this file.
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+email-validator
+python-multipart
+sqlalchemy[asyncio]
+asyncpg
+alembic
+pgvector
+pymupdf
+python-docx
+sentence-transformers
+litellm
+redis
+pyjwt
+bcrypt
+tiktoken
+prometheus-client
+numpy
+httpx

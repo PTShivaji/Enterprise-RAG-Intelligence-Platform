@@ -1,0 +1,48 @@
+[project]
+name = "enterprise-rag-platform"
+version = "1.0.0"
+description = "Enterprise Retrieval-Augmented Generation platform"
+requires-python = ">=3.13"
+
+[tool.ruff]
+line-length = 140
+target-version = "py313"
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "ASYNC", "RUF", "SIM", "C4"]
+ignore = [
+    "S101",   # assert is used for internal invariants and in tests
+    "B008",   # FastAPI Depends()/File() in defaults is idiomatic
+    "S311",   # random is not used for security
+    "RUF001", "RUF002", "RUF003",  # unicode punctuation in docstrings/strings is intentional
+    "SIM108",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S", "ASYNC"]
+"scripts/**" = ["S"]
+"alembic/env.py" = ["E402", "I001"]
+"app/rag/prompt_builder.py" = ["E501"]  # prompt text is kept on readable single lines
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+testpaths = ["tests"]
+markers = [
+    "integration: requires PostgreSQL+pgvector (TEST_DATABASE_URL)",
+    "models: loads real Sentence-Transformers / cross-encoder models (slow)",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning:huggingface_hub.*",
+]
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/main.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
