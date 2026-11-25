@@ -1,0 +1,37 @@
+# Northwind Energy Employee Leave Policy
+
+Policy owner: Human Resources. Applies to all permanent employees of Northwind Energy. Contractors are covered by the Contractor Handbook instead.
+
+## 1. Annual Leave Entitlement
+
+Annual leave accrues monthly from the first day of employment. The yearly entitlement depends on length of continuous service:
+
+- Employees with less than two years of service receive 18 days of paid annual leave per year.
+- Employees with two to five years of service receive 22 days of paid annual leave per year.
+- Employees with more than five years of service receive 26 days of paid annual leave per year.
+
+Part-time employees receive annual leave on a pro-rata basis according to their contracted hours.
+
+## 2. Requesting Leave
+
+Annual leave must be requested through the HR portal at least ten working days in advance. Requests for more than ten consecutive working days require approval from the department head. Managers must respond to leave requests within three working days.
+
+## 3. Carry Over of Unused Leave
+
+Up to 5 unused annual leave days may be carried over into the next calendar year. Carried-over days must be used by March 31 of the following year, after which they expire. Unused leave is not paid out except on termination of employment.
+
+## 4. Sick Leave
+
+Employees receive 10 days of paid sick leave per calendar year. Employees must notify their manager before 10:00 on the first day of absence. A medical certificate is required for absences longer than three consecutive working days. Unused sick leave does not carry over.
+
+## 5. Parental Leave
+
+The primary caregiver is entitled to 16 weeks of fully paid parental leave. The secondary caregiver is entitled to 4 weeks of fully paid parental leave. Parental leave must be taken within 12 months of the birth or adoption of the child.
+
+## 6. Bereavement Leave
+
+Employees may take up to 5 days of paid bereavement leave following the death of an immediate family member, and 2 days for other relatives.
+
+## 7. Unpaid Leave
+
+Employees may request unpaid leave of up to 3 months. Unpaid leave requires the written approval of a director and is normally only granted after annual leave has been used.

@@ -1,10 +1,11 @@
 # Enterprise RAG Intelligence Platform
 #
 #   Infrastructure only (local development):   docker compose up -d postgres redis
-#   Full stack:                                 docker compose up -d --build
+#   Full stack (API + Postgres + Redis):        docker compose up -d --build
 #
-# Host ports are deliberately non-default (5442, 6380, 8001, 8080) so the stack can
-# coexist with other local Postgres/Redis/API instances.
+# Host ports are deliberately non-default (5442, 6380, 8001) so the stack can
+# coexist with other local Postgres/Redis/API instances. The API UI is Swagger at
+# http://localhost:8001/api/v1/docs (this AI-focused build ships no web frontend).
 
 name: enterprise-rag
 
@@ -43,8 +44,10 @@ services:
 
   backend:
     build:
-      context: ./backend
-      dockerfile: ../infrastructure/docker/backend.Dockerfile
+      context: .
+      dockerfile: infrastructure/docker/backend.Dockerfile
+      args:
+        PRELOAD_MODELS: ${PRELOAD_MODELS:-false}
     restart: unless-stopped
     env_file:
       - path: ./backend/.env
@@ -71,23 +74,8 @@ services:
       interval: 15s
       timeout: 5s
       retries: 10
-      start_period: 60s
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: ../infrastructure/docker/frontend.Dockerfile
-    restart: unless-stopped
-    ports:
-      - "${FRONTEND_HOST_PORT:-8080}:80"
-    depends_on:
-      backend:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/healthz"]
-      interval: 15s
-      timeout: 3s
-      retries: 5
+      # First start downloads the models (~180 MB) into the hf_cache volume.
+      start_period: 300s
 
 volumes:
   pgdata:

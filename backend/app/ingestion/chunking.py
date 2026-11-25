@@ -24,6 +24,7 @@ never exceed what the embedding model can encode.
 from __future__ import annotations
 
 import hashlib
+import itertools
 import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -49,6 +50,7 @@ class ChunkingConfig:
     strategy: ChunkStrategy = "recursive"
     chunk_size: int = 200
     overlap: int = 40
+    respect_sections: bool = True
 
     def __post_init__(self) -> None:
         if self.chunk_size < 8:
@@ -218,24 +220,52 @@ def _pack(units: list[Span], text: str, tokens: Callable[[Span], int], cfg: Chun
     return windows
 
 
+def _section_spans(parsed: ParsedDocument) -> list[Span]:
+    """Split the text at section headings.
+
+    A segment containing only a heading (e.g. a document title immediately followed
+    by its first section heading) is folded into the next segment instead of
+    becoming a heading-only chunk.
+    """
+    text = parsed.text
+    titles = {s.start: s.title for s in parsed.sections}
+    bounds = sorted({0, *titles, len(text)})
+    spans: list[Span] = []
+    carry_start: int | None = None
+    for start, end in itertools.pairwise(bounds):
+        body = text[start:end].strip()
+        start_at = carry_start if carry_start is not None else start
+        if start in titles and body == titles[start].strip() and end < len(text):
+            carry_start = start_at  # heading-only: merge forward
+            continue
+        carry_start = None
+        if body:
+            spans.append(_strip_span(text, start_at, end))
+    return spans
+
+
 def chunk_document(parsed: ParsedDocument, cfg: ChunkingConfig, count_tokens: TokenCountFn) -> list[Chunk]:
     """Split a parsed document into chunks carrying page/section metadata."""
     text = parsed.text
     if not text.strip():
         return []
     units_builder = _Units(text, count_tokens, cfg.chunk_size)
-    whole: Span = (0, len(text))
-    if cfg.strategy == "fixed":
-        units = units_builder.fixed(whole)
-    elif cfg.strategy == "sentence":
-        units = units_builder.sentences(whole)
-    elif cfg.strategy == "recursive":
-        units = units_builder.recursive(whole)
-    else:  # pragma: no cover - guarded by typing/validation
+    builders = {"fixed": units_builder.fixed, "sentence": units_builder.sentences, "recursive": units_builder.recursive}
+    if cfg.strategy not in builders:  # pragma: no cover - guarded by typing/validation
         raise ValueError(f"Unknown chunking strategy: {cfg.strategy}")
-
+    make_units = builders[cfg.strategy]
     heading_starts = frozenset(s.start for s in parsed.sections)
-    windows = _pack(units, text, units_builder.tokens, cfg, count_tokens, heading_starts)
+
+    windows: list[Span] = []
+    if cfg.respect_sections and heading_starts:
+        # Section-aware chunking: each section is chunked independently, so a chunk never
+        # mixes two sections and overlap never leaks text across a section boundary.
+        # Topically coherent chunks score far better with cross-encoders and embeddings
+        # than chunks that blend unrelated sections.
+        for span in _section_spans(parsed):
+            windows.extend(_pack(make_units(span), text, units_builder.tokens, cfg, count_tokens, heading_starts))
+    else:
+        windows = _pack(make_units((0, len(text))), text, units_builder.tokens, cfg, count_tokens, heading_starts)
 
     chunks: list[Chunk] = []
     for start, end in windows:

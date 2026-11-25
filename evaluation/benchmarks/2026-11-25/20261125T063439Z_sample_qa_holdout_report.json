@@ -1,0 +1,801 @@
+{
+  "meta": {
+    "timestamp": "20261125T063439Z_sample_qa_holdout",
+    "dataset": "northwind-holdout-v1",
+    "corpus": {
+      "bess200_battery_safety.txt": {
+        "chunks": 5,
+        "pages": null,
+        "ingestion_ms": 414
+      },
+      "contractor_handbook.txt": {
+        "chunks": 5,
+        "pages": null,
+        "ingestion_ms": 604
+      },
+      "it_security_policy.docx": {
+        "chunks": 6,
+        "pages": null,
+        "ingestion_ms": 763
+      },
+      "northwind_leave_policy.txt": {
+        "chunks": 8,
+        "pages": null,
+        "ingestion_ms": 861
+      },
+      "onboarding_guide.txt": {
+        "chunks": 5,
+        "pages": null,
+        "ingestion_ms": 830
+      },
+      "si5000_inverter_manual.pdf": {
+        "chunks": 9,
+        "pages": 4,
+        "ingestion_ms": 1037
+      },
+      "travel_expense_policy.txt": {
+        "chunks": 6,
+        "pages": null,
+        "ingestion_ms": 1006
+      }
+    },
+    "models": {
+      "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+      "embedding_dimension": 384,
+      "embedding_max_seq_length": 256,
+      "reranker_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+      "llm_allowed_models": [
+        "local",
+        "gpt-4o-mini",
+        "anthropic/claude-haiku-5-5",
+        "gemini/gemini-2.0-flash",
+        "ollama/llama3.2"
+      ],
+      "llm_default_model": "local"
+    },
+    "llm_model": "local",
+    "k": 3,
+    "environment": {
+      "python": "3.13.7",
+      "platform": "Windows-11-10.0.26300-SP0",
+      "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+      "client": "run_evaluation.py"
+    },
+    "wall_clock_s": 6.2,
+    "scope": "Local deterministic metrics (see backend/app/evaluation/metrics.py). Faithfulness and relevance are lexical/embedding proxies, not LLM-judged scores."
+  },
+  "retrieval_ablation": {
+    "configurations": []
+  },
+  "end_to_end": {
+    "environment": {
+      "pgvector": "0.8.7",
+      "reranker": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+      "embedding_model": "sentence-transformers/all-MiniLM-L6-v2"
+    },
+    "configurations": [
+      {
+        "name": "hybrid+rerank",
+        "errors": 0,
+        "metrics": {
+          "k": 3,
+          "items": 11,
+          "tokens": {
+            "context_avg": 98.2727,
+            "prompt_total": 0,
+            "cost_usd_total": 0.0,
+            "completion_total": 0
+          },
+          "retrieval": {
+            "mrr": 1.0,
+            "hit_at_k": 1.0,
+            "ndcg_at_k": 1.0,
+            "recall_at_k": 1.0,
+            "precision_at_k": 0.3333,
+            "expected_document_in_top_k": 1.0
+          },
+          "generation": {
+            "faithfulness": 1.0,
+            "grounding_score": 0.75,
+            "answer_relevance": 0.7838,
+            "citation_validity": 1.0,
+            "context_relevance": 0.5833,
+            "answer_term_recall": 1.0,
+            "citation_precision": 1.0,
+            "answer_rate_on_answerable": 0.75,
+            "abstention_accuracy_on_unanswerable": 0.7143
+          },
+          "latency_ms": {
+            "retrieval": {
+              "p50": 113.98,
+              "p95": 321.29,
+              "mean": 136.64
+            },
+            "end_to_end": {
+              "p50": 249.65,
+              "p95": 606.72,
+              "mean": 282.92
+            }
+          },
+          "answerable_items": 4,
+          "unanswerable_items": 7,
+          "retrieval_by_category": {
+            "direct": {
+              "n": 2,
+              "mrr": 1.0,
+              "hit_at_k": 1.0,
+              "recall_at_k": 1.0
+            },
+            "paraphrase": {
+              "n": 2,
+              "mrr": 1.0,
+              "hit_at_k": 1.0,
+              "recall_at_k": 1.0
+            }
+          }
+        }
+      }
+    ],
+    "abstention_calibration": [
+      {
+        "threshold": -8.0,
+        "answer_rate": 1.0,
+        "abstention_accuracy": 0.2857,
+        "balanced": 0.6429
+      },
+      {
+        "threshold": -7.5,
+        "answer_rate": 1.0,
+        "abstention_accuracy": 0.2857,
+        "balanced": 0.6429
+      },
+      {
+        "threshold": -7.0,
+        "answer_rate": 1.0,
+        "abstention_accuracy": 0.4286,
+        "balanced": 0.7143
+      },
+      {
+        "threshold": -6.5,
+        "answer_rate": 1.0,
+        "abstention_accuracy": 0.4286,
+        "balanced": 0.7143
+      },
+      {
+        "threshold": -6.0,
+        "answer_rate": 1.0,
+        "abstention_accuracy": 0.4286,
+        "balanced": 0.7143
+      },
+      {
+        "threshold": -5.5,
+        "answer_rate": 1.0,
+        "abstention_accuracy": 0.4286,
+        "balanced": 0.7143
+      },
+      {
+        "threshold": -5.0,
+        "answer_rate": 1.0,
+        "abstention_accuracy": 0.4286,
+        "balanced": 0.7143
+      },
+      {
+        "threshold": -4.5,
+        "answer_rate": 1.0,
+        "abstention_accuracy": 0.4286,
+        "balanced": 0.7143
+      },
+      {
+        "threshold": -4.0,
+        "answer_rate": 1.0,
+        "abstention_accuracy": 0.5714,
+        "balanced": 0.7857
+      },
+      {
+        "threshold": -3.5,
+        "answer_rate": 1.0,
+        "abstention_accuracy": 0.5714,
+        "balanced": 0.7857
+      },
+      {
+        "threshold": -3.0,
+        "answer_rate": 1.0,
+        "abstention_accuracy": 0.5714,
+        "balanced": 0.7857
+      },
+      {
+        "threshold": -2.5,
+        "answer_rate": 1.0,
+        "abstention_accuracy": 0.5714,
+        "balanced": 0.7857
+      },
+      {
+        "threshold": -2.0,
+        "answer_rate": 1.0,
+        "abstention_accuracy": 0.5714,
+        "balanced": 0.7857
+      },
+      {
+        "threshold": -1.5,
+        "answer_rate": 1.0,
+        "abstention_accuracy": 0.5714,
+        "balanced": 0.7857
+      },
+      {
+        "threshold": -1.0,
+        "answer_rate": 0.75,
+        "abstention_accuracy": 0.5714,
+        "balanced": 0.6607
+      },
+      {
+        "threshold": -0.5,
+        "answer_rate": 0.75,
+        "abstention_accuracy": 0.5714,
+        "balanced": 0.6607
+      },
+      {
+        "threshold": 0.0,
+        "answer_rate": 0.75,
+        "abstention_accuracy": 0.7143,
+        "balanced": 0.7321
+      },
+      {
+        "threshold": 0.5,
+        "answer_rate": 0.75,
+        "abstention_accuracy": 0.7143,
+        "balanced": 0.7321
+      },
+      {
+        "threshold": 1.0,
+        "answer_rate": 0.75,
+        "abstention_accuracy": 0.7143,
+        "balanced": 0.7321
+      },
+      {
+        "threshold": 1.5,
+        "answer_rate": 0.75,
+        "abstention_accuracy": 0.7143,
+        "balanced": 0.7321
+      },
+      {
+        "threshold": 2.0,
+        "answer_rate": 0.75,
+        "abstention_accuracy": 0.8571,
+        "balanced": 0.8036
+      },
+      {
+        "threshold": 2.5,
+        "answer_rate": 0.75,
+        "abstention_accuracy": 1.0,
+        "balanced": 0.875
+      },
+      {
+        "threshold": 3.0,
+        "answer_rate": 0.75,
+        "abstention_accuracy": 1.0,
+        "balanced": 0.875
+      },
+      {
+        "threshold": 3.5,
+        "answer_rate": 0.75,
+        "abstention_accuracy": 1.0,
+        "balanced": 0.875
+      },
+      {
+        "threshold": 4.0,
+        "answer_rate": 0.75,
+        "abstention_accuracy": 1.0,
+        "balanced": 0.875
+      },
+      {
+        "threshold": 4.5,
+        "answer_rate": 0.75,
+        "abstention_accuracy": 1.0,
+        "balanced": 0.875
+      },
+      {
+        "threshold": 5.0,
+        "answer_rate": 0.75,
+        "abstention_accuracy": 1.0,
+        "balanced": 0.875
+      },
+      {
+        "threshold": 5.5,
+        "answer_rate": 0.75,
+        "abstention_accuracy": 1.0,
+        "balanced": 0.875
+      },
+      {
+        "threshold": 6.0,
+        "answer_rate": 0.5,
+        "abstention_accuracy": 1.0,
+        "balanced": 0.75
+      }
+    ]
+  },
+  "items": {
+    "ablation": [],
+    "end_to_end": [
+      {
+        "name": "hybrid+rerank",
+        "results": [
+          {
+            "id": "ho-ans-01",
+            "mrr": 1.0,
+            "answer": "Based on your documents:\n\n- Technicians must wear insulated gloves rated to 1000 volts, safety glasses and arc-flash rated clothing when working inside a battery cabinet. [1]",
+            "e2e_ms": 293.41,
+            "category": "direct",
+            "cost_usd": 0.0,
+            "hit_at_k": 1.0,
+            "question": "What gloves must technicians wear inside a battery cabinet?",
+            "ndcg_at_k": 1.0,
+            "retrieved": [
+              {
+                "page": null,
+                "chunk_id": "b1aee9d31f289ce0a730fee7a40856a9",
+                "filename": "bess200_battery_safety.txt",
+                "relevant": true,
+                "rerank_score": 9.4408,
+                "vector_score": 0.6106716030435809
+              },
+              {
+                "page": null,
+                "chunk_id": "76f59628acd93234e346b65154383da1",
+                "filename": "bess200_battery_safety.txt",
+                "relevant": false,
+                "rerank_score": -3.5491,
+                "vector_score": 0.4188280750019513
+              },
+              {
+                "page": null,
+                "chunk_id": "77a0f94dd685a64bb810032b792262be",
+                "filename": "bess200_battery_safety.txt",
+                "relevant": false,
+                "rerank_score": -8.0093,
+                "vector_score": 0.2830169712598045
+              },
+              {
+                "page": null,
+                "chunk_id": "e2ba3c672c6361d25e3588111b59b417",
+                "filename": "bess200_battery_safety.txt",
+                "relevant": false,
+                "rerank_score": -8.1894,
+                "vector_score": 0.2825255821630017
+              }
+            ],
+            "answerable": true,
+            "recall_at_k": 1.0,
+            "faithfulness": 1.0,
+            "retrieval_ms": 86.74,
+            "answerability": 9.5901,
+            "prompt_tokens": 0,
+            "context_tokens": 174,
+            "precision_at_k": 0.3333333333333333,
+            "cited_documents": [
+              "bess200_battery_safety.txt"
+            ],
+            "grounding_score": 1.0,
+            "answer_relevance": 0.8252,
+            "citation_validity": 1.0,
+            "completion_tokens": 0,
+            "context_relevance": 0.25,
+            "abstention_correct": 1.0,
+            "answer_term_recall": 1.0,
+            "citation_precision": 1.0,
+            "insufficient_evidence": false,
+            "expected_document_in_top_k": 1.0
+          },
+          {
+            "id": "ho-ans-02",
+            "mrr": 1.0,
+            "answer": "Based on your documents:\n\n- Use of a personal car for business travel is reimbursed at 0.58 US dollars per mile. [1]",
+            "e2e_ms": 151.44,
+            "category": "direct",
+            "cost_usd": 0.0,
+            "hit_at_k": 1.0,
+            "question": "What is the mileage reimbursement rate for using a personal car?",
+            "ndcg_at_k": 1.0,
+            "retrieved": [
+              {
+                "page": null,
+                "chunk_id": "9bc08ad5d32e81471c052733e849f831",
+                "filename": "travel_expense_policy.txt",
+                "relevant": true,
+                "rerank_score": 9.0566,
+                "vector_score": 0.7588162648325049
+              }
+            ],
+            "answerable": true,
+            "recall_at_k": 1.0,
+            "faithfulness": 1.0,
+            "retrieval_ms": 92.77,
+            "answerability": 8.285,
+            "prompt_tokens": 0,
+            "context_tokens": 39,
+            "precision_at_k": 0.3333333333333333,
+            "cited_documents": [
+              "travel_expense_policy.txt"
+            ],
+            "grounding_score": 1.0,
+            "answer_relevance": 0.7908,
+            "citation_validity": 1.0,
+            "completion_tokens": 0,
+            "context_relevance": 1.0,
+            "abstention_correct": 1.0,
+            "answer_term_recall": 1.0,
+            "citation_precision": 1.0,
+            "insufficient_evidence": false,
+            "expected_document_in_top_k": 1.0
+          },
+          {
+            "id": "ho-ans-03",
+            "mrr": 1.0,
+            "answer": "I could not find sufficient evidence in your documents to answer this question.",
+            "e2e_ms": 577.42,
+            "category": "paraphrase",
+            "cost_usd": 0.0,
+            "hit_at_k": 1.0,
+            "question": "How long do new starters have to sign up for health cover?",
+            "ndcg_at_k": 1.0,
+            "retrieved": [
+              {
+                "page": null,
+                "chunk_id": "c046c3587a0045a5ad99293a3af0f60f",
+                "filename": "onboarding_guide.txt",
+                "relevant": true,
+                "rerank_score": -3.0862,
+                "vector_score": 0.5054634508214333
+              },
+              {
+                "page": null,
+                "chunk_id": "573304869e15aac2e3b8981196f28bc2",
+                "filename": "onboarding_guide.txt",
+                "relevant": false,
+                "rerank_score": -6.853,
+                "vector_score": 0.2903409552167707
+              },
+              {
+                "page": null,
+                "chunk_id": "c40c9bc8e596ea7523d55e392df9ba23",
+                "filename": "northwind_leave_policy.txt",
+                "relevant": false,
+                "rerank_score": -8.1698,
+                "vector_score": 0.37975434185538703
+              },
+              {
+                "page": null,
+                "chunk_id": "2274a9bee4db8183d7a0887b3ba790b8",
+                "filename": "onboarding_guide.txt",
+                "relevant": false,
+                "rerank_score": -8.2244,
+                "vector_score": 0.501740991861702
+              },
+              {
+                "page": null,
+                "chunk_id": "79f84fd2d13cac4f397eb1381e3dc385",
+                "filename": "northwind_leave_policy.txt",
+                "relevant": false,
+                "rerank_score": -9.329,
+                "vector_score": 0.3605880224354261
+              }
+            ],
+            "answerable": true,
+            "recall_at_k": 1.0,
+            "retrieval_ms": 294.18,
+            "answerability": -1.4279,
+            "prompt_tokens": 0,
+            "context_tokens": 229,
+            "precision_at_k": 0.3333333333333333,
+            "grounding_score": 0.0,
+            "citation_validity": 1.0,
+            "completion_tokens": 0,
+            "abstention_correct": 0.0,
+            "insufficient_evidence": true,
+            "expected_document_in_top_k": 1.0
+          },
+          {
+            "id": "ho-ans-04",
+            "mrr": 1.0,
+            "answer": "Based on your documents:\n\n- Screens must lock automatically after 5 minutes of inactivity. [1]",
+            "e2e_ms": 213.23,
+            "category": "paraphrase",
+            "cost_usd": 0.0,
+            "hit_at_k": 1.0,
+            "question": "After how long idle must a work laptop screen lock itself?",
+            "ndcg_at_k": 1.0,
+            "retrieved": [
+              {
+                "page": null,
+                "chunk_id": "0cd3cce5ff0f786bb95edda7aa158d49",
+                "filename": "it_security_policy.docx",
+                "relevant": true,
+                "rerank_score": 5.7285,
+                "vector_score": 0.6659372249804285
+              },
+              {
+                "page": null,
+                "chunk_id": "c7ad32414b9a825597233089b4c44fa5",
+                "filename": "contractor_handbook.txt",
+                "relevant": false,
+                "rerank_score": -9.0267,
+                "vector_score": 0.29567083716392517
+              }
+            ],
+            "answerable": true,
+            "recall_at_k": 1.0,
+            "faithfulness": 1.0,
+            "retrieval_ms": 99.74,
+            "answerability": 5.7049,
+            "prompt_tokens": 0,
+            "context_tokens": 74,
+            "precision_at_k": 0.3333333333333333,
+            "cited_documents": [
+              "it_security_policy.docx"
+            ],
+            "grounding_score": 1.0,
+            "answer_relevance": 0.7355,
+            "citation_validity": 1.0,
+            "completion_tokens": 0,
+            "context_relevance": 0.5,
+            "abstention_correct": 1.0,
+            "answer_term_recall": 1.0,
+            "citation_precision": 1.0,
+            "insufficient_evidence": false,
+            "expected_document_in_top_k": 1.0
+          },
+          {
+            "id": "ho-na-01",
+            "answer": "Based on your documents:\n\n- The BESS-200 is a 200 kWh lithium iron phosphate battery storage cabinet installed alongside Northwind solar sites. [1]",
+            "e2e_ms": 378.03,
+            "category": "unanswerable",
+            "cost_usd": 0.0,
+            "question": "What is the maximum terminal torque for the BESS-200 battery modules?",
+            "retrieved": [
+              {
+                "page": null,
+                "chunk_id": "77a0f94dd685a64bb810032b792262be",
+                "filename": "bess200_battery_safety.txt",
+                "relevant": null,
+                "rerank_score": 0.6794,
+                "vector_score": 0.5141754456863072
+              },
+              {
+                "page": null,
+                "chunk_id": "dc624efb8dbe3a498a45362936298348",
+                "filename": "bess200_battery_safety.txt",
+                "relevant": null,
+                "rerank_score": -3.1107,
+                "vector_score": 0.4021489442035243
+              },
+              {
+                "page": null,
+                "chunk_id": "76f59628acd93234e346b65154383da1",
+                "filename": "bess200_battery_safety.txt",
+                "relevant": null,
+                "rerank_score": -9.5246,
+                "vector_score": 0.37179030095905974
+              },
+              {
+                "page": null,
+                "chunk_id": "e2ba3c672c6361d25e3588111b59b417",
+                "filename": "bess200_battery_safety.txt",
+                "relevant": null,
+                "rerank_score": -9.9138,
+                "vector_score": 0.3892500516548769
+              }
+            ],
+            "answerable": false,
+            "retrieval_ms": 131.38,
+            "answerability": 1.9564,
+            "prompt_tokens": 0,
+            "context_tokens": 184,
+            "grounding_score": 1.0,
+            "citation_validity": 1.0,
+            "completion_tokens": 0,
+            "abstention_correct": 0.0,
+            "insufficient_evidence": false
+          },
+          {
+            "id": "ho-na-02",
+            "answer": "I could not find sufficient evidence in your documents to answer this question.",
+            "e2e_ms": 636.03,
+            "category": "unanswerable",
+            "cost_usd": 0.0,
+            "question": "How much does the SI-5000 inverter weigh?",
+            "retrieved": [
+              {
+                "page": 1,
+                "chunk_id": "921daa4bcb8f2ad74d15c9eeef002c51",
+                "filename": "si5000_inverter_manual.pdf",
+                "relevant": null,
+                "rerank_score": -0.1385,
+                "vector_score": 0.5119628462780372
+              },
+              {
+                "page": 4,
+                "chunk_id": "9a90638797bd3ede734d2b258045eca6",
+                "filename": "si5000_inverter_manual.pdf",
+                "relevant": null,
+                "rerank_score": -2.1912,
+                "vector_score": 0.44404832852030807
+              },
+              {
+                "page": 3,
+                "chunk_id": "ff5dad9c23846f90a8536380ec45ebca",
+                "filename": "si5000_inverter_manual.pdf",
+                "relevant": null,
+                "rerank_score": -8.4697,
+                "vector_score": 0.499409869295653
+              }
+            ],
+            "answerable": false,
+            "retrieval_ms": 348.4,
+            "answerability": -0.3585,
+            "prompt_tokens": 0,
+            "context_tokens": 156,
+            "grounding_score": 0.0,
+            "citation_validity": 1.0,
+            "completion_tokens": 0,
+            "abstention_correct": 1.0,
+            "insufficient_evidence": true
+          },
+          {
+            "id": "ho-na-03",
+            "answer": "I could not find sufficient evidence in your documents to answer this question.",
+            "e2e_ms": 249.65,
+            "category": "unanswerable",
+            "cost_usd": 0.0,
+            "question": "Which airline is the preferred supplier for corporate flights?",
+            "retrieved": [
+              {
+                "page": null,
+                "chunk_id": "de6b02ecbf6bf9c55eafef1b03a35af7",
+                "filename": "travel_expense_policy.txt",
+                "relevant": null,
+                "rerank_score": -5.0503,
+                "vector_score": 0.343288779258728
+              }
+            ],
+            "answerable": false,
+            "retrieval_ms": 126.68,
+            "answerability": -4.3357,
+            "prompt_tokens": 0,
+            "context_tokens": 44,
+            "grounding_score": 0.0,
+            "citation_validity": 1.0,
+            "completion_tokens": 0,
+            "abstention_correct": 1.0,
+            "insufficient_evidence": true
+          },
+          {
+            "id": "ho-na-04",
+            "answer": "Based on your documents:\n\n- The BESS-200 is a 200 kWh lithium iron phosphate battery storage cabinet installed alongside Northwind solar sites. [1]",
+            "e2e_ms": 380.27,
+            "category": "unanswerable",
+            "cost_usd": 0.0,
+            "question": "What is the noise level of the BESS-200 cabinet in decibels?",
+            "retrieved": [
+              {
+                "page": null,
+                "chunk_id": "77a0f94dd685a64bb810032b792262be",
+                "filename": "bess200_battery_safety.txt",
+                "relevant": null,
+                "rerank_score": 1.7302,
+                "vector_score": 0.39000018268823233
+              },
+              {
+                "page": null,
+                "chunk_id": "e2ba3c672c6361d25e3588111b59b417",
+                "filename": "bess200_battery_safety.txt",
+                "relevant": null,
+                "rerank_score": -8.3069,
+                "vector_score": 0.26303701025027015
+              },
+              {
+                "page": null,
+                "chunk_id": "b1aee9d31f289ce0a730fee7a40856a9",
+                "filename": "bess200_battery_safety.txt",
+                "relevant": null,
+                "rerank_score": -9.8637,
+                "vector_score": 0.3269635244033626
+              }
+            ],
+            "answerable": false,
+            "retrieval_ms": 180.98,
+            "answerability": 2.3922,
+            "prompt_tokens": 0,
+            "context_tokens": 134,
+            "grounding_score": 1.0,
+            "citation_validity": 1.0,
+            "completion_tokens": 0,
+            "abstention_correct": 0.0,
+            "insufficient_evidence": false
+          },
+          {
+            "id": "ho-na-05",
+            "answer": "I could not find sufficient evidence in your documents to answer this question.",
+            "e2e_ms": 206.97,
+            "category": "unanswerable",
+            "cost_usd": 0.0,
+            "question": "What is the Wi-Fi password for the head office?",
+            "retrieved": [
+              {
+                "page": null,
+                "chunk_id": "ed97416e1263fc22bdac0cc33a864340",
+                "filename": "it_security_policy.docx",
+                "relevant": null,
+                "rerank_score": -9.1231,
+                "vector_score": 0.39770386232710775
+              }
+            ],
+            "answerable": false,
+            "retrieval_ms": 113.98,
+            "answerability": -7.459,
+            "prompt_tokens": 0,
+            "context_tokens": 47,
+            "grounding_score": 0.0,
+            "citation_validity": 1.0,
+            "completion_tokens": 0,
+            "abstention_correct": 1.0,
+            "insufficient_evidence": true
+          },
+          {
+            "id": "ho-na-06",
+            "answer": "I could not find sufficient evidence in your documents to answer this question.",
+            "e2e_ms": 12.74,
+            "category": "unanswerable",
+            "cost_usd": 0.0,
+            "question": "What is the company dress code?",
+            "retrieved": [],
+            "answerable": false,
+            "retrieval_ms": 15.15,
+            "answerability": null,
+            "prompt_tokens": 0,
+            "context_tokens": 0,
+            "grounding_score": null,
+            "citation_validity": 1.0,
+            "completion_tokens": 0,
+            "abstention_correct": 1.0,
+            "insufficient_evidence": true
+          },
+          {
+            "id": "ho-na-07",
+            "answer": "I could not find sufficient evidence in your documents to answer this question.",
+            "e2e_ms": 12.98,
+            "category": "unanswerable",
+            "cost_usd": 0.0,
+            "question": "What is the salary range for a field technician?",
+            "retrieved": [],
+            "answerable": false,
+            "retrieval_ms": 13.01,
+            "answerability": null,
+            "prompt_tokens": 0,
+            "context_tokens": 0,
+            "grounding_score": null,
+            "citation_validity": 1.0,
+            "completion_tokens": 0,
+            "abstention_correct": 1.0,
+            "insufficient_evidence": true
+          }
+        ],
+        "settings": {
+          "top_k": 5,
+          "rerank": true,
+          "llm_model": "local",
+          "search_mode": "hybrid",
+          "temperature": 0.1,
+          "chunk_strategy": "recursive",
+          "semantic_cache": false,
+          "query_expansion": "none",
+          "rerank_min_score": -10.0,
+          "chunk_size_tokens": 200,
+          "max_output_tokens": 700,
+          "context_max_tokens": 2500,
+          "candidate_multiplier": 4,
+          "chunk_overlap_tokens": 40,
+          "similarity_threshold": 0.25
+        }
+      }
+    ]
+  }
+}

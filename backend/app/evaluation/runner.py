@@ -54,6 +54,7 @@ async def _evaluate_item(
     texts = [c.content for c in retrieval.chunks]
     row: dict[str, Any] = {
         "id": item.id,
+        "category": item.category,
         "question": item.question,
         "answerable": item.answerable,
         "retrieval_ms": round(retrieval_ms, 2),
@@ -82,6 +83,8 @@ async def _evaluate_item(
         row["context_tokens"] = answer.usage.get("context_tokens", 0)
         row["citation_validity"] = 0.0 if answer.verification.get("invalid_markers_removed") else 1.0
         row["grounding_score"] = answer.verification.get("grounding_score")
+        # Raw answerability signal (None when retrieval found nothing) for threshold calibration.
+        row["answerability"] = (answer.verification.get("generator") or {}).get("answerability")
         if item.answerable:
             row["abstention_correct"] = 0.0 if answer.insufficient_evidence else 1.0
             if not answer.insufficient_evidence:
@@ -117,6 +120,15 @@ def _aggregate(rows: list[dict[str, Any]], k: int) -> dict[str, Any]:
             for key in ("precision_at_k", "recall_at_k", "hit_at_k", "mrr", "ndcg_at_k", "expected_document_in_top_k")
         },
         "latency_ms": {"retrieval": m.latency_summary([r["retrieval_ms"] for r in rows])},
+    }
+    categories = sorted({r.get("category", "general") for r in answerable})
+    agg["retrieval_by_category"] = {
+        cat: {
+            "n": sum(1 for r in answerable if r.get("category") == cat),
+            **{key: m.mean([r.get(key) for r in answerable if r.get("category") == cat])
+               for key in ("hit_at_k", "mrr", "recall_at_k")},
+        }
+        for cat in categories
     }
     if any("answer" in r for r in rows):
         agg["generation"] = {

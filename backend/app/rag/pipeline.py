@@ -230,6 +230,8 @@ class RAGPipeline:
         verification["grounded"] = report.insufficient_evidence or (
             bool(report.citations) and report.weakly_supported_sentences == 0
         )
+        if gen.diagnostics:
+            verification["generator"] = gen.diagnostics
         prep.timings["generation"] = gen.latency_ms
         prep.timings["total"] = round((time.perf_counter() - prep.started) * 1000, 2)
         outcome = "insufficient" if report.insufficient_evidence else ("grounded" if verification["grounded"] else "ungrounded")

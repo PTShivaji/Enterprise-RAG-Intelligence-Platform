@@ -29,6 +29,7 @@ from app.core.tokens import get_token_counter
 from app.embeddings.service import EmbeddingService
 from app.observability.metrics import LLM_ERRORS, LLM_LATENCY, LLM_TOKENS
 from app.rag.types import INSUFFICIENT_EVIDENCE, GenerationRequest, GenerationResult, StreamDelta
+from app.retrieval.reranker import Reranker
 
 logger = get_logger(__name__)
 
@@ -206,34 +207,58 @@ class LocalExtractiveProvider(LLMProvider):
         self,
         embeddings: EmbeddingService,
         *,
+        sentence_scorer: Reranker | None = None,
         max_sentences: int = 4,
         min_relevance: float = 0.35,
+        min_answer_logit: float = 0.0,
         mmr_lambda: float = 0.7,
     ) -> None:
         self.embeddings = embeddings
+        self.sentence_scorer = sentence_scorer
         self.max_sentences = max_sentences
         self.min_relevance = min_relevance
+        self.min_answer_logit = min_answer_logit
         self.mmr_lambda = mmr_lambda
 
-    async def _compose(self, request: GenerationRequest) -> str:
+    @staticmethod
+    def _is_answer_candidate(sentence: str) -> bool:
+        """Exclude headings/fragments: an answer sentence has 4-80 words and ends like prose."""
+        words = len(sentence.split())
+        return 4 <= words <= 80 and sentence.rstrip().endswith((".", "!", "?", ":", ";", ")", '"'))
+
+    async def _relevance(self, question: str, candidates: list[tuple[int, str]],
+                         s_vecs: np.ndarray, q_vec: np.ndarray) -> tuple[np.ndarray, float, float]:
+        """Score sentences. Prefer the cross-encoder (trained for answerability) when available.
+
+        Returns ``(scores in [0, 1] for MMR, raw best score, abstention threshold)``.
+        """
+        q_terms = content_terms(question)
+        lexical = np.array([containment(q_terms, set(content_terms(s))) for _, s in candidates])
+        if self.sentence_scorer is not None:
+            logits = np.array(await asyncio.to_thread(self.sentence_scorer._score, question, [s for _, s in candidates]))
+            # Sigmoid maps ms-marco logits to (0, 1); the raw logit is the abstention signal.
+            return 1 / (1 + np.exp(-logits)), float(logits.max()), self.min_answer_logit
+        relevance = 0.75 * (s_vecs @ q_vec) + 0.25 * lexical
+        return relevance, float(relevance.max()), self.min_relevance
+
+    async def _compose(self, request: GenerationRequest) -> tuple[str, dict]:
+        scorer = "cross-encoder" if self.sentence_scorer is not None else "bi-encoder+lexical"
         candidates: list[tuple[int, str]] = []  # (source index, sentence)
         for source in request.sources:
             for sentence in split_sentences(source.content):
-                if 4 <= len(sentence.split()) <= 80:
+                if self._is_answer_candidate(sentence):
                     candidates.append((source.index, sentence))
         if not candidates:
-            return INSUFFICIENT_EVIDENCE
+            return INSUFFICIENT_EVIDENCE, {"scorer": scorer, "answerability": None}
 
         texts = [request.question] + [s for _, s in candidates]
         vectors = await self.embeddings.embed_queries(texts)
         q_vec, s_vecs = vectors[0], vectors[1:]
-        semantic = s_vecs @ q_vec
-        q_terms = content_terms(request.question)
-        lexical = np.array([containment(q_terms, set(content_terms(s))) for _, s in candidates])
-        relevance = 0.75 * semantic + 0.25 * lexical
-
-        if float(relevance.max()) < self.min_relevance:
-            return INSUFFICIENT_EVIDENCE
+        relevance, best_raw, threshold = await self._relevance(request.question, candidates, s_vecs, q_vec)
+        diagnostics = {"scorer": scorer, "answerability": round(best_raw, 4), "threshold": threshold}
+        if best_raw < threshold:
+            return INSUFFICIENT_EVIDENCE, diagnostics
+        floor = float(relevance.max()) * 0.5 if self.sentence_scorer is not None else self.min_relevance * 0.85
 
         # Maximal Marginal Relevance: relevant AND non-redundant sentences.
         selected: list[int] = []
@@ -246,7 +271,7 @@ class LocalExtractiveProvider(LLMProvider):
                 if score > best_score:
                     best, best_score = i, score
             assert best is not None
-            if relevance[best] < self.min_relevance * 0.85 and selected:
+            if relevance[best] < floor and selected:
                 break
             selected.append(best)
             remaining.discard(best)
@@ -254,16 +279,17 @@ class LocalExtractiveProvider(LLMProvider):
         # Present in source order (source rank, then position) for readability.
         selected.sort()
         lines = [f"- {candidates[i][1]} [{candidates[i][0]}]" for i in selected]
-        return "Based on your documents:\n\n" + "\n".join(lines)
+        return "Based on your documents:\n\n" + "\n".join(lines), diagnostics
 
     async def generate(self, request: GenerationRequest) -> GenerationResult:
         start = time.perf_counter()
-        text = await self._compose(request)
+        text, diagnostics = await self._compose(request)
         elapsed = time.perf_counter() - start
         LLM_LATENCY.labels(model=LOCAL_MODEL, outcome="ok").observe(elapsed)
         return GenerationResult(
             text=text, model=LOCAL_MODEL, provider=self.provider_name,
             prompt_tokens=0, completion_tokens=0, cost_usd=0.0, latency_ms=round(elapsed * 1000, 2),
+            diagnostics=diagnostics,
         )
 
     async def stream(self, request: GenerationRequest) -> AsyncIterator[StreamDelta]:
@@ -280,9 +306,11 @@ class LocalExtractiveProvider(LLMProvider):
 class ProviderRouter:
     """Selects the provider for a model string ("local" -> extractive, else LiteLLM)."""
 
-    def __init__(self, settings: Settings, embeddings: EmbeddingService) -> None:
+    def __init__(self, settings: Settings, embeddings: EmbeddingService, reranker: Reranker | None = None) -> None:
         self.settings = settings
-        self.local = LocalExtractiveProvider(embeddings)
+        self.local = LocalExtractiveProvider(
+            embeddings, sentence_scorer=reranker, min_answer_logit=settings.local_answer_min_logit
+        )
         self.litellm = LiteLLMProvider(settings)
 
     def for_model(self, model: str) -> LLMProvider:

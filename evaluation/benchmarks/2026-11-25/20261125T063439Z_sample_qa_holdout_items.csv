@@ -1,0 +1,12 @@
+configuration,id,category,question,hit_at_k,mrr,recall_at_k,retrieval_ms,insufficient_evidence,faithfulness,citation_precision,answer
+hybrid+rerank,ho-ans-01,direct,What gloves must technicians wear inside a battery cabinet?,1.0,1.0,1.0,86.74,False,1.0,1.0,"Based on your documents:  - Technicians must wear insulated gloves rated to 1000 volts, safety glasses and arc-flash rated clothing when working inside a battery cabinet. [1]"
+hybrid+rerank,ho-ans-02,direct,What is the mileage reimbursement rate for using a personal car?,1.0,1.0,1.0,92.77,False,1.0,1.0,Based on your documents:  - Use of a personal car for business travel is reimbursed at 0.58 US dollars per mile. [1]
+hybrid+rerank,ho-ans-03,paraphrase,How long do new starters have to sign up for health cover?,1.0,1.0,1.0,294.18,True,,,I could not find sufficient evidence in your documents to answer this question.
+hybrid+rerank,ho-ans-04,paraphrase,After how long idle must a work laptop screen lock itself?,1.0,1.0,1.0,99.74,False,1.0,1.0,Based on your documents:  - Screens must lock automatically after 5 minutes of inactivity. [1]
+hybrid+rerank,ho-na-01,unanswerable,What is the maximum terminal torque for the BESS-200 battery modules?,,,,131.38,False,,,Based on your documents:  - The BESS-200 is a 200 kWh lithium iron phosphate battery storage cabinet installed alongside Northwind solar sites. [1]
+hybrid+rerank,ho-na-02,unanswerable,How much does the SI-5000 inverter weigh?,,,,348.4,True,,,I could not find sufficient evidence in your documents to answer this question.
+hybrid+rerank,ho-na-03,unanswerable,Which airline is the preferred supplier for corporate flights?,,,,126.68,True,,,I could not find sufficient evidence in your documents to answer this question.
+hybrid+rerank,ho-na-04,unanswerable,What is the noise level of the BESS-200 cabinet in decibels?,,,,180.98,False,,,Based on your documents:  - The BESS-200 is a 200 kWh lithium iron phosphate battery storage cabinet installed alongside Northwind solar sites. [1]
+hybrid+rerank,ho-na-05,unanswerable,What is the Wi-Fi password for the head office?,,,,113.98,True,,,I could not find sufficient evidence in your documents to answer this question.
+hybrid+rerank,ho-na-06,unanswerable,What is the company dress code?,,,,15.15,True,,,I could not find sufficient evidence in your documents to answer this question.
+hybrid+rerank,ho-na-07,unanswerable,What is the salary range for a field technician?,,,,13.01,True,,,I could not find sufficient evidence in your documents to answer this question.

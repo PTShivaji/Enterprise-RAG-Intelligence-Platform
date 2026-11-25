@@ -62,7 +62,7 @@ class AppContainer:
 
         pgvector_version = await cls._pgvector_version(db)
         iterative = pgvector_version is not None and tuple(int(p) for p in pgvector_version.split(".")[:2]) >= (0, 8)
-        router = ProviderRouter(settings, embeddings)
+        router = ProviderRouter(settings, embeddings, rr)
         retriever = Retriever(settings, embeddings, cache, rr, vector=VectorSearcher(iterative_scan=iterative),
                               llm_router=router)
         pipeline = RAGPipeline(settings, retriever, router, embeddings, cache)

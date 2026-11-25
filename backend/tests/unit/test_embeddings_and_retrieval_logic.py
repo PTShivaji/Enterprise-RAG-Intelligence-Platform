@@ -33,7 +33,7 @@ class BrokenModel(EmbeddingModel):
     def count_tokens(self, text: str) -> int:
         return len(text.split())
 
-    def _encode(self, texts, *, batch_size, is_query):  # noqa: ANN001
+    def _encode(self, texts, *, batch_size, is_query):
         return np.ones((len(texts), 128), dtype=np.float32)  # wrong dimension
 
 
@@ -70,6 +70,15 @@ class TestRRF:
         a = fused[0]
         assert a.fused_score == pytest.approx(1 / 61 + 1 / 63, abs=1e-6)
         assert a.vector_score == 0.9 and a.keyword_score == 0.1  # evidence from both stages preserved
+
+    def test_exact_ties_are_broken_by_evidence_not_ids(self) -> None:
+        # "a" = vector #1 + keyword #2, "z" = keyword #1 + vector #2  -> identical RRF scores.
+        vector = [chunk("z_semantic", vector_score=0.55, vector_rank=1), chunk("a_lexical", vector_score=0.42, vector_rank=2)]
+        keyword = [chunk("a_lexical", keyword_score=0.3, keyword_rank=1), chunk("z_semantic", keyword_score=0.1, keyword_rank=2)]
+        fused = reciprocal_rank_fusion([vector, keyword])
+        assert fused[0].fused_score == fused[1].fused_score
+        assert fused[0].chunk_id == "z_semantic"  # higher cosine wins, although "a" < "z" alphabetically
+        assert [c.chunk_id for c in reciprocal_rank_fusion([keyword, vector])] == [c.chunk_id for c in fused]
 
     def test_weights_and_limit(self) -> None:
         fused = reciprocal_rank_fusion([[chunk("a")], [chunk("b")]], weights=[1.0, 2.0], limit=1)

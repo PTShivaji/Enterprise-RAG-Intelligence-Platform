@@ -1,0 +1,23 @@
+# Travel and Expense Policy
+
+Applies to all Northwind Energy employees travelling on company business.
+
+## Booking Travel
+
+All flights and hotels must be booked through the corporate travel portal. Economy class is required for flights shorter than six hours. Business class is permitted for flights longer than six hours with approval from a vice president.
+
+## Accommodation
+
+The nightly hotel limit is 220 US dollars in major cities and 150 US dollars elsewhere. Employees should choose hotels from the preferred supplier list where available.
+
+## Meals and Per Diem
+
+The domestic meal per diem is 65 US dollars per day. International per diem rates follow the published country rate table. Alcohol is not reimbursable unless it is part of an approved client entertainment event.
+
+## Submitting Expenses
+
+Expense claims must be submitted within 30 days of the end of the trip. Itemised receipts are required for every expense above 25 US dollars. Claims are reimbursed in the next monthly payroll after approval.
+
+## Mileage
+
+Use of a personal car for business travel is reimbursed at 0.58 US dollars per mile. Commuting between home and the regular office is not reimbursable.

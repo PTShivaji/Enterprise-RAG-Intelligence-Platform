@@ -84,7 +84,7 @@ class TestDocuments:
         assert second["duplicate"] and second["document"]["id"] == first["document"]["id"]
         assert not second["ingestion_queued"]
 
-    async def test_validation_errors(self, client: httpx.AsyncClient, auth_headers: dict, container) -> None:  # noqa: ANN001
+    async def test_validation_errors(self, client: httpx.AsyncClient, auth_headers: dict, container) -> None:
         r = await client.post("/documents/upload", headers=auth_headers, files={"file": ("x.exe", b"MZ..", "application/octet-stream")})
         assert r.status_code == 415
         r = await client.post("/documents/upload", headers=auth_headers, files={"file": ("x.pdf", b"not a pdf", "application/pdf")})
@@ -106,13 +106,16 @@ class TestDocuments:
 
     async def test_reingest_with_new_chunking_and_delete(self, client: httpx.AsyncClient, auth_headers: dict) -> None:
         doc_id = await indexed(client, auth_headers, "leave.txt", LEAVE_POLICY_TXT.encode())
-        before = (await client.get(f"/documents/{doc_id}", headers=auth_headers)).json()["chunk_count"]
+        before = {c["id"] for c in (await client.get(f"/documents/{doc_id}/chunks", headers=auth_headers)).json()["items"]}
         r = await client.post(f"/documents/{doc_id}/ingest", headers=auth_headers,
-                              json={"chunk_strategy": "sentence", "chunk_size_tokens": 32, "chunk_overlap_tokens": 0})
+                              json={"chunk_strategy": "fixed", "chunk_size_tokens": 32, "chunk_overlap_tokens": 4})
         assert r.status_code == 202
         after = (await client.get(f"/documents/{doc_id}", headers=auth_headers)).json()
-        assert after["status"] == "indexed" and after["chunk_count"] > before
-        assert after["chunking_config"]["strategy"] == "sentence"
+        assert after["status"] == "indexed"
+        assert after["chunking_config"] == {"strategy": "fixed", "chunk_size": 32, "overlap": 4}
+        chunks = (await client.get(f"/documents/{doc_id}/chunks", headers=auth_headers)).json()["items"]
+        assert len(chunks) == after["chunk_count"] and all(c["token_count"] <= 32 for c in chunks)
+        assert {c["id"] for c in chunks} != before  # old chunks replaced atomically
         assert (await client.delete(f"/documents/{doc_id}", headers=auth_headers)).status_code == 200
         assert (await client.get(f"/documents/{doc_id}", headers=auth_headers)).status_code == 404
         search = await client.post("/search", headers=auth_headers, json={"query": "annual leave"})
@@ -180,7 +183,7 @@ class TestChat:
         assert body["verification"]["invalid_markers_removed"] == []
         assert body["provider"] == "local-extractive" and body["usage"]["cost_usd"] == 0.0
 
-    async def test_insufficient_evidence(self, client: httpx.AsyncClient, auth_headers: dict, container) -> None:  # noqa: ANN001
+    async def test_insufficient_evidence(self, client: httpx.AsyncClient, auth_headers: dict, container) -> None:
         r = await client.post("/chat", headers=auth_headers, json={"message": "What is the CEO's favourite colour?"})
         assert r.json()["insufficient_evidence"] and r.json()["citations"] == []  # no documents at all
         await indexed(client, auth_headers, "leave.txt", LEAVE_POLICY_TXT.encode())
@@ -263,7 +266,7 @@ async def test_user_isolation_across_documents_search_chat_and_conversations(cli
 
 
 # ----------------------------------------------------- settings, analytics, eval, health
-async def test_settings_validation_and_effect(client: httpx.AsyncClient, auth_headers: dict, container, monkeypatch) -> None:  # noqa: ANN001
+async def test_settings_validation_and_effect(client: httpx.AsyncClient, auth_headers: dict, container, monkeypatch) -> None:
     monkeypatch.setattr(container.embeddings.model, "max_seq_length", 256)  # MiniLM's window
     s = (await client.get("/settings", headers=auth_headers)).json()
     assert s["search_mode"] == "hybrid"
@@ -315,7 +318,7 @@ async def test_evaluation_run(client: httpx.AsyncClient, auth_headers: dict) -> 
     run = (await client.get(f"/evaluation/results/{run_id}", headers=auth_headers)).json()
     assert run["status"] == "completed", run["error_message"]
     configs = run["metrics"]["configurations"]
-    assert [c["name"] for c in configs] == ["vector", "hybrid+prf+rerank"]
+    assert [c["name"] for c in configs] == ["vector", "hybrid+rerank"]  # PRF is opt-in by default
     for c in configs:
         assert c["errors"] == 0
         assert 0 <= c["metrics"]["retrieval"]["recall_at_k"] <= 1

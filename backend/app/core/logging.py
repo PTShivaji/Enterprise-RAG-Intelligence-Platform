@@ -79,7 +79,8 @@ def configure_logging(level: str = "INFO", json_logs: bool = True) -> None:
     root.addHandler(handler)
     root.setLevel(level.upper())
     # Third-party libraries are noisy at INFO.
-    for noisy in ("httpx", "httpcore", "LiteLLM", "litellm", "sentence_transformers", "urllib3"):
+    for noisy in ("httpx", "httpx2", "httpcore", "huggingface_hub", "filelock", "LiteLLM", "litellm",
+                  "sentence_transformers", "urllib3"):
         logging.getLogger(noisy).setLevel(logging.WARNING)
     logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
 

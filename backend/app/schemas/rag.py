@@ -197,6 +197,7 @@ class ConversationDetail(ConversationSummary):
 # ------------------------------------------------------------------- evaluation
 class EvalItem(BaseModel):
     id: str = Field(max_length=100)
+    category: str = Field("general", max_length=50)
     question: str = Field(min_length=1, max_length=1000)
     expected_answer: str | None = Field(None, max_length=4000)
     expected_documents: list[str] = Field(default_factory=list)

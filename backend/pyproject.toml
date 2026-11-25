@@ -41,6 +41,9 @@ filterwarnings = [
 
 [tool.coverage.run]
 source = ["app"]
+# SQLAlchemy's asyncio layer runs DB code in greenlets; without this, code after
+# DB awaits (e.g. the ingestion pipeline) is executed but not recorded.
+concurrency = ["greenlet", "thread"]
 omit = ["app/main.py"]
 
 [tool.coverage.report]

@@ -16,7 +16,9 @@ shall per via within without please tell explain describe give show list done ge
 STOPWORDS = frozenset(_STOPWORD_TEXT.split())
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+(?:['-][a-z0-9]+)*")
-_SENT_RE = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9\"'(\[])|\n{2,}|\n(?=\s*(?:[-*•]|\d+[.)])\s)")
+# Sentence boundary after . ! ? — but a citation marker such as "[1]" following the
+# period belongs to the preceding sentence ("...wrench. [1]"), so "[digit" never starts one.
+_SENT_RE = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9\"'(]|\[(?!\d))|\n{2,}|\n(?=\s*(?:[-*•]|\d+[.)])\s)")
 
 
 def light_stem(token: str) -> str:

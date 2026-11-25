@@ -1,0 +1,9 @@
+run,configuration,precision@k,recall@k,hit@k,mrr,ndcg@k,retrieval_p50_ms,retrieval_p95_ms,faithfulness,answer_relevance,context_relevance,citation_precision,citation_validity,answer_term_recall,abstention_accuracy,e2e_p50_ms,e2e_p95_ms,prompt_tokens,completion_tokens,cost_usd
+ablation,keyword,0.3333,1.0,1.0,0.9301,0.8936,6.44,9.16,,,,,,,,,,,,
+ablation,vector,0.3333,1.0,1.0,0.9516,0.9097,5.75,8.63,,,,,,,,,,,,
+ablation,hybrid,0.3333,1.0,1.0,1.0,0.9454,10.67,13.07,,,,,,,,,,,,
+ablation,hybrid+prf,0.3333,1.0,1.0,0.9301,0.8936,9.11,11.65,,,,,,,,,,,,
+ablation,vector+rerank,0.3333,1.0,1.0,0.9839,0.9335,286.99,636.44,,,,,,,,,,,,
+ablation,hybrid+rerank,0.3333,1.0,1.0,0.9839,0.9335,296.65,558.62,,,,,,,,,,,,
+ablation,hybrid+prf+rerank,0.3333,1.0,1.0,0.9839,0.9335,332.94,570.98,,,,,,,,,,,,
+end_to_end,hybrid+rerank,0.3333,1.0,1.0,0.9839,0.9335,277.54,589.99,1.0,0.6965,0.3542,0.7986,1.0,0.9042,1.0,583.45,825.9,0,0,0.0

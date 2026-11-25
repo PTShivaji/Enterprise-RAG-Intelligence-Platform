@@ -22,15 +22,15 @@ os.environ.setdefault("ENVIRONMENT", "test")
 os.environ["LOG_JSON"] = "false"
 os.environ["LOG_LEVEL"] = "WARNING"
 
-import httpx  # noqa: E402
-import pytest  # noqa: E402
-from redis.asyncio import Redis  # noqa: E402
-from sqlalchemy import text  # noqa: E402
+import httpx
+import pytest
+from redis.asyncio import Redis
+from sqlalchemy import text
 
-from app.core.config import Settings, get_settings  # noqa: E402
-from app.database.session import Database  # noqa: E402
-from app.embeddings.hash_embedding import HashEmbedding  # noqa: E402
-from app.retrieval.reranker import LexicalOverlapReranker  # noqa: E402
+from app.core.config import Settings, get_settings
+from app.database.session import Database
+from app.embeddings.hash_embedding import HashEmbedding
+from app.retrieval.reranker import LexicalOverlapReranker
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -109,7 +109,7 @@ async def redis_client(test_settings: Settings) -> AsyncIterator[Redis]:
 
 
 @pytest.fixture
-async def container(test_settings: Settings, clean_db: Database, redis_client: Redis):  # noqa: ANN201
+async def container(test_settings: Settings, clean_db: Database, redis_client: Redis):
     from app.services.container import AppContainer
 
     c = await AppContainer.create(
@@ -123,7 +123,7 @@ async def container(test_settings: Settings, clean_db: Database, redis_client: R
 
 
 @pytest.fixture
-async def client(container, test_settings: Settings) -> AsyncIterator[httpx.AsyncClient]:  # noqa: ANN001
+async def client(container, test_settings: Settings) -> AsyncIterator[httpx.AsyncClient]:
     from app.main import create_app
 
     app = create_app(test_settings, container=container)

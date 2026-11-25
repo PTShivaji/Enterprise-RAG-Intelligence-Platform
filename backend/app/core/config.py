@@ -89,10 +89,17 @@ class Settings(BaseSettings):
     retrieval_candidate_multiplier: int = Field(4, ge=1, le=20)
     similarity_threshold: float = Field(0.25, ge=-1.0, le=1.0)
     # Reranker logit below which a candidate is treated as irrelevant (ms-marco scale).
-    rerank_min_score: float = Field(-6.0, ge=-20.0, le=20.0)
+    # Liberal cutoff: retrieval maximises recall; the answer stage decides abstention.
+    # (Measured: -6 dropped relevant paraphrase chunks with MiniLM-L6 cross-encoder.)
+    rerank_min_score: float = Field(-10.0, ge=-20.0, le=20.0)
+    # Local extractive mode: best sentence-level cross-encoder logit needed to answer.
+    # Calibrated on evaluation/datasets/sample_qa.json (best balanced accuracy, ties broken toward
+    # abstaining), then validated on the held-out sample_qa_holdout.json. See docs/EVALUATION.md.
+    local_answer_min_logit: float = Field(1.0, ge=-20.0, le=20.0)
     rrf_k: int = 60
     search_mode: Literal["vector", "keyword", "hybrid"] = "hybrid"
-    query_expansion: Literal["none", "prf", "multi_query"] = "prf"
+    # PRF measurably lowered MRR on the sample benchmark (see docs/EVALUATION.md); opt-in.
+    query_expansion: Literal["none", "prf", "multi_query"] = "none"
     context_max_tokens: int = 2500
     semantic_cache_enabled: bool = True
     semantic_cache_threshold: float = Field(0.95, ge=0.5, le=1.0)

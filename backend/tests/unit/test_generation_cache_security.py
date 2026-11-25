@@ -36,10 +36,10 @@ def src(i: int, text: str) -> ContextSource:
 
 
 # ----------------------------------------------------------------- LiteLLM provider
-class Timeout(Exception): ...  # noqa: N818 - mimics litellm.Timeout name
+class Timeout(Exception): ...
 
 
-class AuthenticationFailure(Exception): ...  # noqa: N818
+class AuthenticationFailure(Exception): ...
 
 
 @pytest.mark.parametrize(("exc", "kind"), [(Timeout("t"), "timeout"), (AuthenticationFailure("bad key"), "auth"),
@@ -47,7 +47,7 @@ class AuthenticationFailure(Exception): ...  # noqa: N818
 async def test_litellm_errors_become_safe_provider_errors(monkeypatch, exc: Exception, kind: str) -> None:
     import litellm
 
-    async def fail(**_):  # noqa: ANN003, ANN202
+    async def fail(**_):
         raise exc
 
     monkeypatch.setattr(litellm, "acompletion", fail)
@@ -62,7 +62,7 @@ async def test_litellm_hard_timeout(monkeypatch) -> None:
 
     import litellm
 
-    async def hang(**_):  # noqa: ANN003, ANN202
+    async def hang(**_):
         await asyncio.sleep(30)
 
     monkeypatch.setattr(litellm, "acompletion", hang)
@@ -80,7 +80,7 @@ async def test_litellm_hard_timeout(monkeypatch) -> None:
 async def test_litellm_success_reports_usage(monkeypatch) -> None:
     import litellm
 
-    async def ok(**kwargs):  # noqa: ANN003, ANN202
+    async def ok(**kwargs):
         assert kwargs["num_retries"] == 0 and kwargs["timeout"] == 1
         return SimpleNamespace(
             choices=[SimpleNamespace(message=SimpleNamespace(content="Employees get 22 days [1]."))],
@@ -96,8 +96,8 @@ async def test_litellm_success_reports_usage(monkeypatch) -> None:
 async def test_litellm_streaming_yields_deltas_then_final(monkeypatch) -> None:
     import litellm
 
-    async def stream(**_):  # noqa: ANN003, ANN202
-        async def gen():  # noqa: ANN202
+    async def stream(**_):
+        async def gen():
             for piece in ["Employees ", "get ", "22 days [1]."]:
                 yield SimpleNamespace(choices=[SimpleNamespace(delta=SimpleNamespace(content=piece))], usage=None)
             yield SimpleNamespace(choices=[], usage=SimpleNamespace(prompt_tokens=50, completion_tokens=6))
@@ -129,7 +129,7 @@ async def test_local_extractive_abstains_without_relevant_evidence() -> None:
 
 # ------------------------------------------------------------------------- caching
 @pytest.fixture
-async def cache(redis_client) -> CacheService:  # noqa: ANN001
+async def cache(redis_client) -> CacheService:
     return CacheService(redis_client, Settings(semantic_cache_threshold=0.95))
 
 
@@ -173,25 +173,25 @@ async def test_redis_outage_degrades_to_cache_miss() -> None:
     class DownPipeline:
         """Mirrors redis-py: building a pipeline is sync; failure surfaces on execute()."""
 
-        async def __aenter__(self):  # noqa: ANN204
+        async def __aenter__(self):
             return self
 
-        async def __aexit__(self, *exc) -> None:  # noqa: ANN002
+        async def __aexit__(self, *exc) -> None:
             return None
 
-        def __getattr__(self, name):  # noqa: ANN001, ANN204
+        def __getattr__(self, name):
             if name == "execute":
-                async def fail():  # noqa: ANN202
+                async def fail():
                     raise RedisConnectionError("down")
                 return fail
             return lambda *a, **k: self
 
     class DownRedis:
-        def pipeline(self, *a, **k) -> DownPipeline:  # noqa: ANN002, ANN003
+        def pipeline(self, *a, **k) -> DownPipeline:
             return DownPipeline()
 
-        def __getattr__(self, name):  # noqa: ANN001, ANN204
-            async def fail(*a, **k):  # noqa: ANN002, ANN003, ANN202
+        def __getattr__(self, name):
+            async def fail(*a, **k):
                 raise RedisConnectionError("down")
             return fail
 

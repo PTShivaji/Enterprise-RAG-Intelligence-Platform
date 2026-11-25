@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import itertools
 import re
 
 import pytest
 
 from app.ingestion.chunking import ChunkingConfig, build_embedding_text, chunk_document
 from app.ingestion.parsers import parse_document
-from app.ingestion.parsers.base import ParsedDocument, PageSpan
+from app.ingestion.parsers.base import PageSpan, ParsedDocument
 from tests.factories import LEAVE_POLICY_TXT, make_pdf
 
 
@@ -41,13 +42,13 @@ def test_chunks_respect_token_limit_and_offsets(strategy: str) -> None:
 @pytest.mark.parametrize("strategy", ["fixed", "recursive", "sentence"])
 def test_overlap_carries_context_forward(strategy: str) -> None:
     chunks = chunk_document(ParsedDocument(text=LONG_TEXT), ChunkingConfig(strategy, 60, 20), count_words)
-    overlaps = sum(1 for a, b in zip(chunks, chunks[1:], strict=False) if b.char_start < a.char_end)
+    overlaps = sum(1 for a, b in itertools.pairwise(chunks) if b.char_start < a.char_end)
     assert overlaps >= len(chunks) // 2
 
 
 def test_no_overlap_means_disjoint_chunks() -> None:
     chunks = chunk_document(ParsedDocument(text=LONG_TEXT), ChunkingConfig("fixed", 50, 0), count_words)
-    for a, b in zip(chunks, chunks[1:], strict=False):
+    for a, b in itertools.pairwise(chunks):
         assert b.char_start >= a.char_end
 
 
@@ -93,6 +94,24 @@ def test_sections_and_headings_open_chunks() -> None:
     headings = {s.title for s in parsed.sections}
     for c in chunks[:-1]:
         assert c.content.split("\n\n")[-1] not in headings or len(c.content.split("\n\n")) == 1
+
+
+def test_section_aware_chunks_never_mix_sections() -> None:
+    parsed = parse_document("txt", LEAVE_POLICY_TXT.encode())
+    # Large budget: without section awareness everything would fit in one chunk.
+    chunks = chunk_document(parsed, ChunkingConfig("recursive", 500, 50), count_words)
+    starts = sorted(s.start for s in parsed.sections)
+    titles = {s.start: s.title for s in parsed.sections}
+    for c in chunks:
+        inner = [s for s in starts if c.char_start < s < c.char_end]
+        # Only allowed crossing: a heading-only prefix (document title) folded into the first section.
+        for s in inner:
+            prefix = parsed.text[c.char_start:s].strip()
+            assert prefix in titles.values(), f"chunk crosses a section boundary: {c.content[:60]!r}"
+    assert chunks[0].content.startswith("Leave Policy\n\nAnnual Leave")  # title folded into first section
+    assert [c.section for c in chunks] == ["Leave Policy", "Carry Over", "Sick Leave"]
+    mixed = chunk_document(parsed, ChunkingConfig("recursive", 500, 50, respect_sections=False), count_words)
+    assert len(mixed) == 1
 
 
 def test_stable_ids_are_deterministic_and_unique() -> None:

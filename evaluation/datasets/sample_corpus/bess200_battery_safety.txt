@@ -1,0 +1,19 @@
+# BESS-200 Battery Energy Storage System Safety Guide
+
+The BESS-200 is a 200 kWh lithium iron phosphate battery storage cabinet installed alongside Northwind solar sites.
+
+## Thermal Runaway
+
+Thermal runaway is a self-sustaining temperature increase in a battery cell. If a cell temperature above 60 degrees Celsius is reported, the battery management system disconnects the affected module automatically. Never open a cabinet that is emitting smoke; evacuate to a distance of at least 30 metres and call the emergency services.
+
+## Inspection Schedule
+
+Battery cabinets must be visually inspected every month. The fire suppression system must be inspected and certified every six months by an accredited contractor. Battery modules must be capacity-tested once per year.
+
+## Firmware
+
+BESS-200 firmware updates are distributed by the battery management vendor and must be installed by a certified technician using the vendor service tool. Firmware must never be updated while the system is charging.
+
+## Personal Protective Equipment
+
+Technicians must wear insulated gloves rated to 1000 volts, safety glasses and arc-flash rated clothing when working inside a battery cabinet.

@@ -63,6 +63,7 @@ class GenerationResult:
     completion_tokens: int = 0
     cost_usd: float | None = None
     latency_ms: float = 0.0
+    diagnostics: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(slots=True)

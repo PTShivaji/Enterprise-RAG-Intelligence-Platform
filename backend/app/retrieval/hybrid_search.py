@@ -48,7 +48,15 @@ def reciprocal_rank_fusion(
                     existing.keyword_score, existing.keyword_rank = chunk.keyword_score, chunk.keyword_rank
             scores[chunk.chunk_id] = scores.get(chunk.chunk_id, 0.0) + weight / (k + rank)
 
-    fused = sorted(merged.values(), key=lambda c: (-scores[c.chunk_id], c.chunk_id))
+    # Exact RRF ties are common (e.g. vector rank 1 + keyword rank 2 vs. the reverse).
+    # Break them by evidence, not by arbitrary ids: best single-list rank, then cosine
+    # similarity; chunk_id last, only for full determinism. (Tie-breaking by chunk_id
+    # alone made rankings flip between runs, because ids embed the document UUID.)
+    def tie_key(c: RetrievedChunk) -> tuple:
+        ranks = [r for r in (c.vector_rank, c.keyword_rank) if r is not None]
+        return (-scores[c.chunk_id], min(ranks) if ranks else 1 << 30, -(c.vector_score or 0.0), c.chunk_id)
+
+    fused = sorted(merged.values(), key=tie_key)
     for chunk in fused:
         chunk.fused_score = round(scores[chunk.chunk_id], 6)
     return fused[:limit] if limit is not None else fused

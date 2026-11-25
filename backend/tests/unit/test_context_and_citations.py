@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from app.core.tokens import get_token_counter
 from app.rag.citations import verify_citations
 from app.rag.context_builder import ContextBuilder, compress_to_budget
@@ -99,7 +101,7 @@ class TestPrompt:
 
 
 class TestCitations:
-    sources = [
+    sources: ClassVar[list[ContextSource]] = [
         source(1, "Employees with two to five years of service receive 22 days of paid annual leave per year."),
         source(2, "Leave requests must be submitted through the HR portal ten working days in advance."),
     ]
@@ -128,6 +130,17 @@ class TestCitations:
     def test_uncited_factual_sentences_are_counted(self) -> None:
         report = verify_citations("Employees receive 22 days of paid annual leave every single year.", self.sources)
         assert report.uncited_sentences == 1 and report.citations == []
+
+    def test_marker_after_period_stays_with_its_sentence(self) -> None:
+        # Regression: "sentence. [1]" used to split into "sentence." + "[1]", making the
+        # claim look uncited and the excerpt fall back to the whole chunk.
+        content = ("Annual Electrical Inspection\n\nOnce per year, tighten all DC terminals to a torque of 2.5 Nm. "
+                   "Measure the insulation resistance of the PV array.")
+        answer = "Based on your documents:\n\n- Once per year, tighten all DC terminals to a torque of 2.5 Nm. [1]"
+        report = verify_citations(answer, [source(1, content)])
+        assert report.uncited_sentences == 0
+        assert report.citations[0].text == "Once per year, tighten all DC terminals to a torque of 2.5 Nm."
+        assert report.grounding_score == 1.0
 
     def test_insufficient_evidence_detected(self) -> None:
         report = verify_citations(INSUFFICIENT_EVIDENCE, self.sources)

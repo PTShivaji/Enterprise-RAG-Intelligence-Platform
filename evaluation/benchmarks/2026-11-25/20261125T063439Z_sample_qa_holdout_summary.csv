@@ -1,0 +1,2 @@
+run,configuration,precision@k,recall@k,hit@k,mrr,ndcg@k,retrieval_p50_ms,retrieval_p95_ms,faithfulness,answer_relevance,context_relevance,citation_precision,citation_validity,answer_term_recall,abstention_accuracy,e2e_p50_ms,e2e_p95_ms,prompt_tokens,completion_tokens,cost_usd
+end_to_end,hybrid+rerank,0.3333,1.0,1.0,1.0,1.0,113.98,321.29,1.0,0.7838,0.5833,1.0,1.0,1.0,0.7143,249.65,606.72,0,0,0.0

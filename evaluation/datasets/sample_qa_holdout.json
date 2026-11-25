@@ -1,0 +1,17 @@
+{
+  "name": "northwind-holdout-v1",
+  "description": "Held-out validation set written AFTER the abstention threshold was chosen on sample_qa.json and BEFORE any scores on it were observed. Mostly 'near-miss' unanswerable questions (the topic exists in the corpus but the requested fact does not), which are the hardest case for abstention.",
+  "items": [
+    {"id": "ho-ans-01", "category": "direct", "question": "What gloves must technicians wear inside a battery cabinet?", "expected_answer": "insulated gloves rated to 1000 volts", "expected_documents": ["bess200_battery_safety.txt"], "evidence": ["Technicians must wear insulated gloves rated to 1000 volts"]},
+    {"id": "ho-ans-02", "category": "direct", "question": "What is the mileage reimbursement rate for using a personal car?", "expected_answer": "0.58 US dollars per mile", "expected_documents": ["travel_expense_policy.txt"], "evidence": ["reimbursed at 0.58 US dollars per mile"]},
+    {"id": "ho-ans-03", "category": "paraphrase", "question": "How long do new starters have to sign up for health cover?", "expected_answer": "within 30 days of the start date", "expected_documents": ["onboarding_guide.txt"], "evidence": ["You must enrol in the health insurance plan within 30 days of your start date"]},
+    {"id": "ho-ans-04", "category": "paraphrase", "question": "After how long idle must a work laptop screen lock itself?", "expected_answer": "after 5 minutes of inactivity", "expected_documents": ["it_security_policy.docx"], "evidence": ["Screens must lock automatically after 5 minutes of inactivity"]},
+    {"id": "ho-na-01", "category": "unanswerable", "question": "What is the maximum terminal torque for the BESS-200 battery modules?", "answerable": false},
+    {"id": "ho-na-02", "category": "unanswerable", "question": "How much does the SI-5000 inverter weigh?", "answerable": false},
+    {"id": "ho-na-03", "category": "unanswerable", "question": "Which airline is the preferred supplier for corporate flights?", "answerable": false},
+    {"id": "ho-na-04", "category": "unanswerable", "question": "What is the noise level of the BESS-200 cabinet in decibels?", "answerable": false},
+    {"id": "ho-na-05", "category": "unanswerable", "question": "What is the Wi-Fi password for the head office?", "answerable": false},
+    {"id": "ho-na-06", "category": "unanswerable", "question": "What is the company dress code?", "answerable": false},
+    {"id": "ho-na-07", "category": "unanswerable", "question": "What is the salary range for a field technician?", "answerable": false}
+  ]
+}
