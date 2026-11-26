@@ -56,6 +56,7 @@ services:
       ENVIRONMENT: ${ENVIRONMENT:-development}
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-rag}:${POSTGRES_PASSWORD:-rag_password}@postgres:5432/${POSTGRES_DB:-rag_platform}
       REDIS_URL: redis://redis:6379/0
+      ADMIN_EMAILS: '["shivaji@example.com"]'
       STORAGE_DIR: /data/storage
       HF_HOME: /data/hf_cache
       CORS_ORIGINS: '["http://localhost:8080","http://localhost:5173"]'
