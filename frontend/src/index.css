@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+/* Design tokens: one dark palette, used through Tailwind utilities (bg-surface, text-muted, ...). */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+
+  --color-canvas: #0b0d12;        /* app background - deep charcoal */
+  --color-surface: #11151d;       /* cards, sidebar */
+  --color-surface-2: #161b26;     /* raised / hover */
+  --color-surface-3: #1d2331;     /* inputs, pressed */
+  --color-line: #232a38;          /* hairline borders */
+  --color-line-strong: #2f3748;
+
+  --color-fg: #e6e8ee;
+  --color-muted: #9aa3b5;
+  --color-subtle: #6b7488;
+
+  --color-accent: #8b5cf6;        /* violet */
+  --color-accent-strong: #7c3aed;
+  --color-accent-soft: rgb(139 92 246 / 0.14);
+  --color-info: #3b82f6;          /* electric blue */
+  --color-info-soft: rgb(59 130 246 / 0.14);
+  --color-ok: #22c55e;
+  --color-ok-soft: rgb(34 197 94 / 0.12);
+  --color-warn: #f59e0b;
+  --color-warn-soft: rgb(245 158 11 / 0.12);
+  --color-danger: #ef4444;
+  --color-danger-soft: rgb(239 68 68 / 0.12);
+
+  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 8px 24px -12px rgb(0 0 0 / 0.6);
+  --shadow-pop: 0 16px 48px -12px rgb(0 0 0 / 0.7);
+
+  --animate-fade-in: fade-in 180ms ease-out;
+  --animate-blink: blink 1s steps(2, start) infinite;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes blink { to { visibility: hidden; } }
+
+@layer base {
+  html, body, #root { height: 100%; }
+  body {
+    @apply bg-canvas text-fg font-sans antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+  ::selection { background: rgb(139 92 246 / 0.35); }
+  * { scrollbar-width: thin; scrollbar-color: #2f3748 transparent; }
+  :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: 6px; }
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-line bg-surface shadow-card;
+  }
+  .input {
+    @apply w-full rounded-lg border border-line bg-surface-3/60 px-3 py-2 text-sm text-fg
+      placeholder:text-subtle transition-colors
+      focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/20;
+  }
+  .label {
+    @apply mb-1.5 block text-xs font-medium text-muted;
+  }
+  .kbd {
+    @apply rounded border border-line-strong bg-surface-2 px-1.5 py-0.5 font-mono text-[10px] text-muted;
+  }
+}

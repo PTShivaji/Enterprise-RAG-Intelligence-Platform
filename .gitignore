@@ -31,6 +31,7 @@ node_modules/
 frontend/dist/
 frontend/coverage/
 *.log
+*.tsbuildinfo
 
 # OS / editor
 .DS_Store

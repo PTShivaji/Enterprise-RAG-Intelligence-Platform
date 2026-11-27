@@ -1,6 +1,6 @@
 # Project Status
 
-Snapshot: 2026-11-25. The scope was narrowed during the project to **the AI system plus the supporting backend**: no web frontend, and the documented REST API with Swagger UI is the interface.
+Snapshot: 2026-11-26. The scope was narrowed during the project to **the AI system plus the supporting backend**. A React web frontend (`frontend/`) was added on 2026-11-26. The REST API with Swagger UI remains available.
 
 ## ✅ Implemented and verified
 
@@ -21,10 +21,23 @@ Verified means automated tests pass, and for quality claims the measured evaluat
 - **Evaluation:** metrics, runner, ablations, dev and held-out datasets with validated labels, JSON/CSV reports, abstention calibration sweep. Results in [docs/EVALUATION.md](docs/EVALUATION.md).
 - **Database:** SQLAlchemy models, Alembic migration (applied to the app and test databases), indexes and constraints.
 - **Docker:** the Compose stack (Postgres + pgvector, Redis, API) builds, starts healthy, runs migrations, and produced evaluation results matching the local run.
+- **Web frontend** (React + TypeScript + Tailwind, `frontend/`): `npm run build` passes with strict TypeScript. A scripted browser run (Playwright driving Microsoft Edge) against the live backend verified each step below with no page errors and no 5xx responses:
+  - the login redirect, the wrong-password error, and login;
+  - upload of a DOCX and a PDF through the UI to "Indexed", and rejection of an `.exe` file;
+  - a streamed answer from `ollama/llama3.2` with citation chips, the citation card and the grounding badge;
+  - the insufficient-evidence notice;
+  - restoring a conversation after a page reload;
+  - search with scores and highlighting;
+  - the Knowledge Base, Analytics and Settings pages;
+  - the backend health indicator;
+  - the 390 px mobile layout with no horizontal overflow;
+  - logout.
 
 ## 🟡 Implemented but not fully verified
 
-- **Hosted LLM providers** (OpenAI, Anthropic, Gemini, Ollama) through LiteLLM: code paths are tested with mocks only. No real provider call was made, to avoid charges, and no answer-quality benchmark exists for them.
+- **LLM providers through LiteLLM.**
+  - **Ollama** (`ollama/llama3.2`, local and free): real streamed answers were observed through the API and the frontend. One example had 1 citation, `grounded=false` with a grounding score of 0.82, and about 31–35 s latency on CPU. There is no answer-quality benchmark.
+  - **OpenAI, Anthropic and Gemini:** tested with mocks only. No real call was made, to avoid charges.
 - **Grounded prompt effectiveness** (citation adherence, abstention sentence, injection resistance) with a real LLM: not measured.
 - **Timing-equalised login**, **log redaction**, and **SQL-injection safety**: implemented by construction, but not timing-tested or fuzzed.
 - **Prometheus metrics content**: the endpoint is tested, but no dashboard has been built on it.
@@ -41,7 +54,12 @@ Verified means automated tests pass, and for quality claims the measured evaluat
 
 ## ❌ Not implemented
 
-- Web frontend (dashboard, chat UI, search explorer, evaluation charts). Removed from scope by the AI-focused brief; Swagger UI is the interface.
+- Frontend gaps:
+  - no automated component or E2E test suite in the repo (verification above was a one-off script);
+  - no evaluation-run trigger in the UI (results are displayed only);
+  - no search filters UI;
+  - no light theme;
+  - not containerised in docker-compose.
 - OCR for scanned PDFs; other formats (PPTX, HTML, XLSX).
 - Durable job queue (Celery/arq) and object storage for uploads.
 - CI pipeline, dependency/image vulnerability scanning, load testing.

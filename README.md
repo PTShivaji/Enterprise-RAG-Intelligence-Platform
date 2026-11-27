@@ -4,7 +4,7 @@ A production-oriented Retrieval-Augmented Generation backend: upload PDF / DOCX 
 
 Runs fully **locally and free** (CPU models, no API key). Plug in OpenAI / Anthropic / Gemini / Ollama through LiteLLM with one setting.
 
-> **Scope.** This build focuses on the AI system — ingestion, retrieval, reranking, context engineering, grounded generation, citation verification and measured evaluation. The interface is the documented REST API (Swagger UI); no web frontend is included.
+> **Scope.** This build focuses on the AI system: ingestion, retrieval, reranking, context engineering, grounded generation, citation verification and measured evaluation. There are two interfaces: the documented REST API (Swagger UI) and a React web app in [`frontend/`](frontend/README.md), which provides chat with streaming and citations, document upload, search, analytics and settings.
 
 ---
 
@@ -257,7 +257,8 @@ Production mode (`ENVIRONMENT=production`) refuses to start with a weak `JWT_SEC
 - Faithfulness/relevance metrics are **local lexical/embedding proxies**, not LLM-judged; RAGAS is not integrated (it requires a paid judge LLM).
 - The benchmark corpus is small (44 chunks); Hit/Recall@3 saturate. Results do not transfer to large corpora without re-evaluation.
 - Ingestion runs as in-process background tasks; production would use a durable queue (Celery/arq) and object storage.
-- No OCR for scanned PDFs; no web frontend in this build.
+- No OCR for scanned PDFs.
+- The web frontend has no automated test suite; it was verified with a scripted browser run against the live backend (see [PROJECT_STATUS.md](PROJECT_STATUS.md)).
 
 More: [PROJECT_STATUS.md](PROJECT_STATUS.md) · [SECURITY_CHECKLIST.md](SECURITY_CHECKLIST.md)
 
